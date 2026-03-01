@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<video id="video" width="700" controls>
+
+    <source src="video/video.mp4">
+
+    <track id="sub1"
+        src="subs/sub0.vtt"
+        kind="subtitles"
+        srclang="en"
+        label="English">
+
+    <track id="sub2"
+        src="subs/sub1.vtt"
+        kind="subtitles"
+        srclang="en"
+        label="English 2">
+
+</video>
+
+<br>
+
+Audio:
+<select id="audioSelect">
+    <option value="audio/eng.mp3">English</option>
+    <option value="audio/jpn.mp3">Japanese</option>
+</select>
+
+Subtitle:
+<select id="subSelect">
+    <option value="-1">Off</option>
+    <option value="0">Sub 1</option>
+    <option value="1">Sub 2</option>
+</select>
+
+<script>
+
+let video = document.getElementById("video")
+let audio = new Audio()
+
+let audioSelect = document.getElementById("audioSelect")
+let subSelect = document.getElementById("subSelect")
+
+audio.src = audioSelect.value
+
+
+// AUDIO SWITCH
+audioSelect.onchange = function () {
+
+    let t = video.currentTime
+
+    audio.src = this.value
+
+    audio.currentTime = t
+
+    if (!video.paused) audio.play()
+}
+
+
+// PLAY
+video.onplay = () => audio.play()
+
+// PAUSE
+video.onpause = () => audio.pause()
+
+// SEEK
+video.onseeking = () => {
+    audio.currentTime = video.currentTime
+}
+
+// KEEP SYNC
+video.ontimeupdate = () => {
+
+    if (Math.abs(video.currentTime - audio.currentTime) > 0.3) {
+        audio.currentTime = video.currentTime
+    }
+
+}
+
+// SPEED
+video.onratechange = () => {
+    audio.playbackRate = video.playbackRate
+}
+
+
+
+// SUBTITLE SWITCH
+
+subSelect.onchange = function () {
+
+    let tracks = video.textTracks
+
+    for (let i = 0; i < tracks.length; i++) {
+        tracks[i].mode = "disabled"
+    }
+
+    if (this.value != -1) {
+        tracks[this.value].mode = "showing"
+    }
+
+}
+
+
+</script>
+
+</body>
+</html>
